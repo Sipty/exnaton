@@ -1,7 +1,7 @@
 # The plan:
 - Data exploration:
-    - Plot data on a day/night visual - its likely to be related to energy consumtion/ production :)
-    - Plot and visualize auto-correlation for the specific data.
+    ✅ Plot data on a day/night visual - its likely to be related to energy consumtion/ production :)
+    ✅ Plot and visualize auto-correlation for the specific data.
 
 ## Backend
 - Spin up a local DB. 
