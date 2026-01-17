@@ -46,7 +46,7 @@ Build a front-end application using a technology of your choice:
 
 **Bonus:** Add some form of analytical tool to your front-end application
 
-## Task D - Deployment
+## Task D - Deployment 
 
 How would you deploy your application? Prepare the corresponding dockerfiles, kubernetes resource definitions, and whatever else you see fit. Notice that we'll want to serve multiple tenants. How could this be accommodated in the app/deployment?
 
