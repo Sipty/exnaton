@@ -23,3 +23,17 @@ We're looking at a **single person or couple in a small apartment/house** with:
 - Regular laundry habits
 - An active Friday night social calendar
 - The self-respect to sleep in on Saturday and stay WAY TOO LATE on Sunday.
+
+
+## Task 2: Backend
+
+For the backend I went with a fairly simple architecture, but with a vision of scale and an ability for it to grow into complexity, as it is added in. 
+
+To explain the decisions:
+- Backend is based on FastAPI. I prefer using FastAPI for most of my CRUD applications since its good-enough. Previously I had one of the major contributors of Starlite working under me, so we tended to use that, but ONLY because the team was intimately familiar with the library. When doing things on my own, I prefer to work with the most popular tool out there, since it guarantees best-in-class support by the LLMs, with little compromises on speed/quality.
+
+- DB is TimeseriesDB, which is based off of PostgresSQL. Based on the data, this is one of the best options. I've worked with InfluxDB in the past, but wanted to try this for the toy project. :) 
+
+The DB itself is updated using a separate data_loader container, which is a simple Python app, fetching data from the source, massaging it lightly and upserting it into the DB. I went with this approach only to satisfy the requirement in the homework, asking me to treat S3 as an actual API. I've baked in a few comments explaining how the code would change, were it a real API I was playing with, with the assumption that data in the DB will be updated every 15~ minutes, so the schedule is on a 15 minute interval. In reality, this design would be heavily based on the real world requirements and will be informed by a lot of conversations/ design docs. 
+
+

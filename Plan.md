@@ -4,9 +4,9 @@
     ✅ Plot and visualize auto-correlation for the specific data.
 
 ## Backend
-- Spin up a local DB. 
-- Download data and populate DB with it.
-- Create a beautiful API with lots of docs
+✅ Spin up a local DB. 
+✅ Download data and populate DB with it.
+👨‍🍳 Create a beautiful API with lots of docs
 
 ## Frontend
 - Build up a beautiful Frontend with a House backdrop and interactive components
