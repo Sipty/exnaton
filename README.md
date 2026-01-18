@@ -1,6 +1,7 @@
 # Exnaton homework assignment. 
 
-## Task 1: Data Exploration - full details and analysis trace can be found in data_exploration.ipynb
+## Task 1: Data Exploration
+### Full details and analysis trace can be found in data_exploration.ipynb
 
 From doing some basic internet sleuthing, I've came to the conclusion the hex values are OBIS codes. The description of which is explained above. The readings theory of active vs reactive energy tracks the most, as the percent of reactive energy is on average accurate against what the typical reactive energy is against active energy. In the real world, I would just go ask the provider/ or my fellow data science folk though. :)
 
