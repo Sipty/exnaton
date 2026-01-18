@@ -32,8 +32,14 @@ For the backend I went with a fairly simple architecture, but with a vision of s
 To explain the decisions:
 - Backend is based on FastAPI. I prefer using FastAPI for most of my CRUD applications since its good-enough. Previously I had one of the major contributors of Starlite working under me, so we tended to use that, but ONLY because the team was intimately familiar with the library. When doing things on my own, I prefer to work with the most popular tool out there, since it guarantees best-in-class support by the LLMs, with little compromises on speed/quality.
 
-- DB is TimeseriesDB, which is based off of PostgresSQL. Based on the data, this is one of the best options. I've worked with InfluxDB in the past, but wanted to try this for the toy project. :) 
+- DB is TimeseriesDB, which is an extension to PostgresSQL. Based on the data, this is one of the best options. Cassandra was another consideration, but considering both serve the same usecase, the main distinction came to Cassandra being better suited for high throughput streams. Considering the data entries were stored a few times PER HOUR, I went with the assumption we're not really cooking anything extreme. I am also assuming the data isn't going to be changed very often, as it is a timeseries DB.
 
 The DB itself is updated using a separate data_loader container, which is a simple Python app, fetching data from the source, massaging it lightly and upserting it into the DB. I went with this approach only to satisfy the requirement in the homework, asking me to treat S3 as an actual API. I've baked in a few comments explaining how the code would change, were it a real API I was playing with, with the assumption that data in the DB will be updated every 15~ minutes, so the schedule is on a 15 minute interval. In reality, this design would be heavily based on the real world requirements and will be informed by a lot of conversations/ design docs. 
 
+In terms of scalability - TimescaleDB comes with all the goodies of a NoSQL DB (replication, partitioning, sharding out the box) so we're chilling now and in the future. 
 
+I gave myself the permission NOT to consider licenses, since I am having a lot of fun with this project and don't want to spoil it. 😇
+
+Last thing to mention is regarding the data_loader - this is likely the weakest link in the whole architecture and TBH it can be optimized significantly by just using an off-the-shelf solution like Airflow or its offshoots. I decided against it for this project, simply because the data is so simple and the intake was so vaguely defined that I stayed on the side of caution and decided not to overengineer the assignment.
+
+Fun note regarding the data_loader - I've used similar setups before for ingestion, where I've used pandas and have managed to achieve C-level processing speeds, hence why I decided to go with that approach here. If this was going in prod, I'd spend a lot more time understanding the ingestion and tidying up the Pandas code to get sub-second increases, but deemed it unnecessary for this specific assignment. 
