@@ -1,4 +1,3 @@
-import math
 import os
 from contextlib import asynccontextmanager
 
@@ -11,6 +10,8 @@ database = Database(DATABASE_URL)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # DB and data are guaranteed ready by docker-compose dependency chain:
+    # db (healthy) -> data_loader (healthy) -> backend
     await database.connect()
     yield
     await database.disconnect()
@@ -19,25 +20,51 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/hello_world")
-def hello_world():
-    """Simple endpoint to test if the server is up and running."""
-    return {"message": "Hello, World!"}
+@app.get("/health")
+def health():
+    """Health check endpoint."""
+    return {"status": "ok"}
 
 
-@app.get("/hello_big_bang")
-async def hello_big_bang():
-    """Fetch the first event in the universe from TimescaleDB."""
-    query = "SELECT time, event, energy FROM universe ORDER BY time LIMIT 1"
-    row = await database.fetch_one(query)
-    if row:
-        energy = row["energy"]
-        # JSON doesn't support Infinity, so convert to string
-        if math.isinf(energy):
-            energy = "Infinity"
-        return {
-            "time": row["time"].isoformat(),
-            "event": row["event"],
-            "energy": energy,
+
+@app.get("/meter_readings/every_third_day")
+async def get_readings_every_third_day():
+    """
+    Fetch the first meter reading for each 3-day period.
+    
+    Uses TimescaleDB's time_bucket to group data into 3-day intervals,
+    then returns the earliest reading within each bucket.
+    """
+    query = """
+        WITH bucketed AS (
+            SELECT 
+                time_bucket('3 days', timestamp) AS bucket,
+                timestamp,
+                muid,
+                measurement_type,
+                reading,
+                quality,
+                ROW_NUMBER() OVER (
+                    PARTITION BY time_bucket('3 days', timestamp), muid, measurement_type 
+                    ORDER BY timestamp
+                ) AS rn
+            FROM meter_readings
+        )
+        SELECT bucket, timestamp, muid, measurement_type, reading, quality
+        FROM bucketed
+        WHERE rn = 1
+        ORDER BY bucket, muid, measurement_type
+    """
+    rows = await database.fetch_all(query)
+    
+    return [
+        {
+            "bucket": row["bucket"].isoformat(),
+            "timestamp": row["timestamp"].isoformat(),
+            "muid": row["muid"],
+            "measurement_type": row["measurement_type"],
+            "reading": row["reading"],
+            "quality": row["quality"],
         }
-    return {"message": "What are you doing here? - God"}
+        for row in rows
+    ]

@@ -7,20 +7,33 @@ services:
       POSTGRES_DB: meter_data
     ports:
       - "5432:5432"
-    volumes:
-      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U exnaton -d meter_data"]
       interval: 2s
       timeout: 5s
       retries: 10
 
+  data_loader:
+    build: ./data_loader
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://exnaton:exnaton@db:5432/meter_data
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/data_loader_ready"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+    restart: unless-stopped
+
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     depends_on:
-      db:
+      data_loader:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://exnaton:exnaton@db:5432/meter_data
