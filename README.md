@@ -1,4 +1,4 @@
-### How It Works
+# Quick start guide:
 
 The `docker-compose.yml` uses environment variable substitution for tenant-specific values:
 - `TENANT_ID` - Unique identifier for the tenant (used in container names and database names)
@@ -32,8 +32,19 @@ docker compose --env-file .env.tenant-2 -p tenant-2 up -d
    docker compose --env-file .env.tenant-3 -p tenant-3 up -d
    ```
 
+3. Enjoy:
+   ``` bash
+   # Frontend
+   http://localhost:3000/dashboard
 
-# Exnaton homework assignment. 
+   # Documentation
+   http://localhost:8000/docs 
+   ```
+
+
+# Exnaton homework assignment discussion:
+
+![Architecture Diagram](architecture.png "Application Architecture")
 
 ## Data Exploration
 ### Full details and analysis trace can be found in `data_exploration.ipynb`
@@ -107,3 +118,22 @@ Lastly, I did mention it somewhere else in the Readme, but given more time, I wo
 ## Deployment
 
 Considering exnaton produces a white label product, it only seemed fitting to go with a similar, FULLY isolated tenancy deployment strategy for this homework as well. Everyone gets their own deployment, for their own customers. In reality, we'd likely use K8s or docker swarm... (Is anyone still using docker swarm? lol) But for the sake of not over-engineering this, figured I'd take the easy route and just mention the hard stuff here haha 
+
+In general, for the current, theorized data load, per tenant (new data coming in every 15 mins) - we're chilling with the docker compose deployment on a single node. Vertical scalling will take us a very, VERY long way. 
+
+Once we start scalling though, maybe more data/ more frequently, etc, we are either going to start bottlenecking at the data_loader level first, since we process data manually. Assuming these apps are only used for information by customers, the API will never bottleneck first, despite the light processing we offer. (also please assume we have a rate limited in place and the API is secured LOL)
+
+I wouldn't keep the same data by different tenants on the same VM, simply because I don't want to be the one responsible for the clusterF that would occur, in case of a data leak. Just simpler to deploy on a new node/ vm for each tenant. 
+
+If I had to guess which container would need their own VMs first: DB > Data_loader > Backend > Frontend.
+
+Generally, I don't like introducing K8S too early into a projects life. Nor do I like breaking out of the single, Vertically-Scallable VM too  early. I've not found myself in a situation where the complexity is worth it out of the box, yet. 
+
+But to continue the thought of scalling, once we've started deploying individual VMs for everything, it would be high time to start considering ECS or Fargate.
+
+Once the team has grown (or we approach multi-cloud (or worse: on prem 💀)) requirements, it would be time to start talking about and considering K8S. 
+
+
+## Observability/ Testing
+
+Not present in the repo, but I have also decided to omit observability, nor testing, due to time constraints. Please assume was this the real world, both of those would be present. But at the time of writing I am going on my 12th hour (and still not done), so these things are getting a honorable mention. 
