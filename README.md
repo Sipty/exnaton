@@ -44,7 +44,7 @@ docker compose --env-file .env.tenant-2 -p tenant-2 up -d
 
 # Exnaton homework assignment discussion:
 
-![Architecture Diagram](architecture.png "Application Architecture")
+![Architecture Diagram](diagram.png "Application Architecture")
 
 ## Data Exploration
 ### Full details and analysis trace can be found in `data_exploration.ipynb`
