@@ -37,3 +37,10 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://exnaton:exnaton@db:5432/meter_data
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend

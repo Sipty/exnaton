@@ -65,9 +65,27 @@ OBIS_CODES = {
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://exnaton:exnaton@localhost:5432/meter_data")
 
 
-def get_db_connection():
-    """Create a database connection."""
-    return psycopg2.connect(DATABASE_URL)
+def get_db_connection(max_retries: int = 10, retry_delay: float = 2.0):
+    """
+    Create a database connection with retry logic.
+    
+    Retries on connection failures with exponential backoff,
+    useful for handling transient issues during container startup.
+    """
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            return psycopg2.connect(DATABASE_URL)
+        except psycopg2.OperationalError as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                wait_time = retry_delay * (2 ** attempt)  # exponential backoff
+                logger.warning(
+                    f"Database connection failed (attempt {attempt + 1}/{max_retries}), "
+                    f"retrying in {wait_time:.1f}s: {e}"
+                )
+                time.sleep(wait_time)
+    raise last_error
 
 
 def init_schema():
