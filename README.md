@@ -27,6 +27,7 @@ We're looking at a **single person or couple in a small apartment/house** with:
 
 ## Task 2: Backend
 
+### Architecture
 For the backend I went with a fairly simple architecture, but with a vision of scale and an ability for it to grow into complexity, as it is added in. 
 
 To explain the decisions:
@@ -43,3 +44,12 @@ I gave myself the permission NOT to consider licenses, since I am having a lot o
 Last thing to mention is regarding the data_loader - this is likely the weakest link in the whole architecture and TBH it can be optimized significantly by just using an off-the-shelf solution like Airflow or its offshoots. I decided against it for this project, simply because the data is so simple and the intake was so vaguely defined that I stayed on the side of caution and decided not to overengineer the assignment.
 
 Fun note regarding the data_loader - I've used similar setups before for ingestion, where I've used pandas and have managed to achieve C-level processing speeds, hence why I decided to go with that approach here. If this was going in prod, I'd spend a lot more time understanding the ingestion and tidying up the Pandas code to get sub-second increases, but deemed it unnecessary for this specific assignment. 
+
+### API
+For the API I attempt to do as much of the heavy lifting as possible on the backend, with the idea of not overloading the frontend/ users devices. This does come at a cost, of course, so in real life we'd need to consider where should the load be and if we're ok with the bulk of the processing to happen on the frontend.
+
+Another shortcut I've taken is not implementing rate limiting or any security measures, as I cosnidered them to be out of scope for this. 
+
+We do get swagger docks for mostly free, which are available at /docs. I've done my best to document functions in as much detail as possible. I've not included a getting started page and similar crash-course-level entries, as I am going with the assumption that the front end devs would have access to the code, so they can deep-dive by reading the code itself.
+
+Lastly, we make liberal use of the TimescaleDBs hypertable, allowing for optimized time series processing. This is the big reason behind my desire to do the table processing on the backend and if more info was needed, frontend engineers can either bake it into the backend direct or process it on the frontend. But considering Exnaton is a small company, I'm going with the assumption everyone can work on everything, despite specializations.
