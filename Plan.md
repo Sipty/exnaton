@@ -24,8 +24,8 @@
     ❌ I also think adding a chat window, allowing for an agent to access and converse against the data would be pretty cool. 
 
 ## Deployment:
-- We want to handle multi-tenancy - user accounts would be good, along some kind of oauth
+✅ We want to handle multi-tenancy - user accounts would be good, along some kind of oauth
 
-- Vertical scaling should be enough for this, but sit down and think through the whole stack.
+✅ Vertical scaling should be enough for this, but sit down and think through the whole stack.
 
-- Create an excalidraw with architecture, once decided.
+✅ Create an excalidraw with architecture, once decided.

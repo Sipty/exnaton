@@ -1,5 +1,9 @@
 # Quick start guide:
 
+## Prerequisites
+- Docker & Docker Compose v2.0+
+- (For data exploration) Python 3.11+ with Jupyter
+
 The `docker-compose.yml` uses environment variable substitution for tenant-specific values:
 - `TENANT_ID` - Unique identifier for the tenant (used in container names and database names)
 - `DB_PASSWORD` - Database password for the tenant
@@ -56,7 +60,7 @@ From doing some basic internet sleuthing, I've came to the conclusion the hex va
 
 Sidenote - data is cool. But energy data is SO COOL! 
 
-So, processing some more clues: energy heatmap for the start of the week (EARLY IN THE MORNING) is a crazy giveaway, when combined with the kwh numbers, that we're almost certainly looking at someone with a crazy consistent pattern, living in an appartment/ small house. The spikes are almost certainly related to them doing laundry. Also the low energy consumption friday evening is also a suggestion this user likes going out on those days, including sleeping in on saturday, hahaha.
+So, processing some more clues: energy heatmap for the start of the week (EARLY IN THE MORNING) is a crazy giveaway, when combined with the kwh numbers, that we're almost certainly looking at someone with a crazy consistent pattern, living in an apartment/ small house. The spikes are almost certainly related to them doing laundry. Also the low energy consumption friday evening is also a suggestion this user likes going out on those days, including sleeping in on saturday, hahaha.
 
 Thinking about it further, I would go as far as to guess the person works on a hybrid schedule, where they usually go to office Tuesday/ Wednesday? Seems like their work day starts around 10 or so. And Wednesday they come back fairly early around 3? 
 
@@ -94,20 +98,20 @@ Fun note regarding the data_loader - I've used similar setups before for ingesti
 ### API
 For the API I attempt to do as much of the heavy lifting as possible on the backend, with the idea of not overloading the frontend/ users devices. This does come at a cost, of course, so in real life we'd need to consider where should the load be and if we're ok with the bulk of the processing to happen on the frontend.
 
-Another shortcut I've taken is not implementing rate limiting or any security measures, as I cosnidered them to be out of scope for this. 
+Another shortcut I've taken is not implementing rate limiting or any security measures, as I considered them to be out of scope for this. 
 
-We do get swagger docks for mostly free, which are available at /docs. I've done my best to document functions in as much detail as possible. I've not included a getting started page and similar crash-course-level entries, as I am going with the assumption that the front end devs would have access to the code, so they can deep-dive by reading the code itself.
+We do get swagger docs for mostly free, which are available at /docs. I've done my best to document functions in as much detail as possible. I've not included a getting started page and similar crash-course-level entries, as I am going with the assumption that the front end devs would have access to the code, so they can deep-dive by reading the code itself.
 
 Lastly, we make liberal use of the TimescaleDBs hypertable, allowing for optimized time series processing. This is the big reason behind my desire to do the table processing on the backend and if more info was needed, frontend engineers can either bake it into the backend direct or process it on the frontend. But considering Exnaton is a small company, I'm going with the assumption everyone can work on everything, despite specializations.
 
-The usage insights on the drashboard are static, but if given more time I would've liked to either generate them dynamically per customer or better yet, connect an LLM with MCP, allowing customers to directly discuss optimizations with it, for a very little cost on us.
+The usage insights on the dashboard are static, but if given more time I would've liked to either generate them dynamically per customer or better yet, connect an LLM with MCP, allowing customers to directly discuss optimizations with it, for a very little cost on us.
 
 ## Frontend
-Fundamentally I do dislike React, but I like using it for throw-away projects, as LLMs are amazing at it, due too the sheer ammount of throw-away projects written in React. When it comes to hand-rolling Frontends OR long term projects, which WILL be hand-rolled, I much prefer Svelte. Its just simpler and more elegant. There's also something to be said about the team/ wider community of Svelte vs React enjoyers, team composition, etc, but that's out of the scope of the Readme. Happy to chat about it during our actual interview though. 
+Fundamentally I do dislike React, but I like using it for throw-away projects, as LLMs are amazing at it, due to the sheer amount of throw-away projects written in React. When it comes to hand-rolling Frontends OR long term projects, which WILL be hand-rolled, I much prefer Svelte. Its just simpler and more elegant. There's also something to be said about the team/ wider community of Svelte vs React enjoyers, team composition, etc, but that's out of the scope of the Readme. Happy to chat about it during our actual interview though. 
 
 Anyway, to get back on track - I went with React and Vite for the UI and relied heavily on Plotly for the data vis. I tried my best to take inspiration from the exnaton app screenshots available on the website, including features like recommending data-saving tips and visualizing the low and high tariff windows.
 
-The data is fetched with a single call, thanks to the (kinda) grotesquely fat API call. Figured better to keep it simple, rather than have 12 different, but highly specialized APIs. I've taken inspriation from the big public API providers, like the social media guys, for this design choice. 
+The data is fetched with a single call, thanks to the (kinda) grotesquely fat API call. Figured better to keep it simple, rather than have 12 different, but highly specialized APIs. I've taken inspiration from the big public API providers, like the social media guys, for this design choice. 
 
 Also I opted AGAINST using GraphQL for this data - it just seemed pointless, considering the data available to me. There's ZERO need for relationships, so I didn't see the need to introduce such complexity, for no speedup whatsoever. Were we working with more complex, relationship heavy data though, I'd definitely be singing a different tune. 
 
@@ -119,21 +123,21 @@ Lastly, I did mention it somewhere else in the Readme, but given more time, I wo
 
 Considering exnaton produces a white label product, it only seemed fitting to go with a similar, FULLY isolated tenancy deployment strategy for this homework as well. Everyone gets their own deployment, for their own customers. In reality, we'd likely use K8s or docker swarm... (Is anyone still using docker swarm? lol) But for the sake of not over-engineering this, figured I'd take the easy route and just mention the hard stuff here haha 
 
-In general, for the current, theorized data load, per tenant (new data coming in every 15 mins) - we're chilling with the docker compose deployment on a single node. Vertical scalling will take us a very, VERY long way. 
+In general, for the current, theorized data load, per tenant (new data coming in every 15 mins) - we're chilling with the docker compose deployment on a single node. Vertical scaling will take us a very, VERY long way. 
 
-Once we start scalling though, maybe more data/ more frequently, etc, we are either going to start bottlenecking at the data_loader level first, since we process data manually. Assuming these apps are only used for information by customers, the API will never bottleneck first, despite the light processing we offer. (also please assume we have a rate limited in place and the API is secured LOL)
+Once we start scaling though, maybe more data/ more frequently, etc, we are either going to start bottlenecking at the data_loader level first, since we process data manually. Assuming these apps are only used for information by customers, the API will never bottleneck first, despite the light processing we offer. (also please assume we have a rate limited in place and the API is secured LOL)
 
 I wouldn't keep the same data by different tenants on the same VM, simply because I don't want to be the one responsible for the clusterF that would occur, in case of a data leak. Just simpler to deploy on a new node/ vm for each tenant. 
 
 If I had to guess which container would need their own VMs first: DB > Data_loader > Backend > Frontend.
 
-Generally, I don't like introducing K8S too early into a projects life. Nor do I like breaking out of the single, Vertically-Scallable VM too  early. I've not found myself in a situation where the complexity is worth it out of the box, yet. 
+Generally, I don't like introducing K8S too early into a projects life. Nor do I like breaking out of the single, Vertically-Scalable VM too early. I've not found myself in a situation where the complexity is worth it out of the box, yet. 
 
-But to continue the thought of scalling, once we've started deploying individual VMs for everything, it would be high time to start considering ECS or Fargate.
+But to continue the thought of scaling, once we've started deploying individual VMs for everything, it would be high time to start considering ECS or Fargate.
 
 Once the team has grown (or we approach multi-cloud (or worse: on prem 💀)) requirements, it would be time to start talking about and considering K8S. 
 
 
-## Observability/ Testing
+## Observability/ Testing/ User accounts
 
-Not present in the repo, but I have also decided to omit observability, nor testing, due to time constraints. Please assume was this the real world, both of those would be present. But at the time of writing I am going on my 12th hour (and still not done), so these things are getting a honorable mention. 
+Due to time constraints, I've omitted observability, testing, and user authentication from this implementation. In a production environment, all three would be essential — but after 12+ hours on this project, they're getting an honourable mention instead. 
