@@ -53,3 +53,5 @@ Another shortcut I've taken is not implementing rate limiting or any security me
 We do get swagger docks for mostly free, which are available at /docs. I've done my best to document functions in as much detail as possible. I've not included a getting started page and similar crash-course-level entries, as I am going with the assumption that the front end devs would have access to the code, so they can deep-dive by reading the code itself.
 
 Lastly, we make liberal use of the TimescaleDBs hypertable, allowing for optimized time series processing. This is the big reason behind my desire to do the table processing on the backend and if more info was needed, frontend engineers can either bake it into the backend direct or process it on the frontend. But considering Exnaton is a small company, I'm going with the assumption everyone can work on everything, despite specializations.
+
+The usage insights on the drashboard are static, but if given more time I would've liked to either generate them dynamically per customer or better yet, connect an LLM with MCP, allowing customers to directly discuss optimizations with it, for a very little cost on us.
